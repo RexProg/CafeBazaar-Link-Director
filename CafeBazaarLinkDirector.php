@@ -1,10 +1,26 @@
 <?php
-    $packagename = $_POST['packagename'];
-	$packagename = $_GET['packagename'];
+	$packagename = '';
+	if(isset($_POST['packagename'])){
+		$packagename = $_POST['packagename'];
+	}else if (isset($_GET['packagename'])){
+		$packagename = $_GET['packagename'];
+	}else if ($argc > 0 && isset($argv[1])){
+		$packagename = $argv[1];
+	}
 	if($packagename == null && $packagename == ""){
 		echo 'err';
 		return;
 	}
+	
+	if (preg_match("/\?id=(.+)/", $packagename)>0){
+		preg_match("/\?id=(.+)/", $packagename, $mat);
+		$packagename = $mat[1];
+	}
+	if (preg_match("/\/app\/(.+)\//", $packagename)>0){
+		preg_match("/\/app\/(.+)\//", $packagename, $mat);
+		$packagename = $mat[1];
+	}
+	echo $packagename . "\r\n";
     function hashed($package) {
 	$hash = '{"7cc78271-e338-4edc-849c-b105c5d51ba5":["getAppDownloadInfo","' . $package . '"' . ',19]}';
 	return sha1($hash);
@@ -50,16 +66,9 @@
 	if (curl_error($ch)) {
     echo curl_error($ch);
 	}
-	
-		preg_match_all("/\"t\": \"(.*?)\"/", $answer, $matchesName);
-		
-	
-		preg_match_all("/\"cp\": \[\"(.*?)\"\]/", $answer, $matchesAddres);
-		
-	$t = 0;
-	foreach ($matchesName[1] as $match) {
-       if (is_numeric($match))
-		   $t = $match;
-	}
-	echo $matchesAddres[1][0] . 'apks/' . $t . '.apk?rand=' . current_millis();
+	echo $answer . "\r\n";
+    $json = json_decode($answer);
+	$name = $json->result->t;
+	$addresses = $json->result->cp;
+	echo $addresses[0] . 'apks/' . $name . '.apk?rand=' . current_millis();
 ?>
