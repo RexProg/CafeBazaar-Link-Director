@@ -11,3 +11,5 @@ Post Data :
 ```
 packagename=com.example.app
 ```
+
+Thanks [kooroshh](https://github.com/kooroshh) for Optimizing
