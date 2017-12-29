@@ -16,14 +16,37 @@
 		preg_match("/\?id=(.+)/", $packagename, $mat);
 		$packagename = $mat[1];
 	}
+	
 	if (preg_match("/\/app\/(.+)\//", $packagename)>0){
 		preg_match("/\/app\/(.+)\//", $packagename, $mat);
 		$packagename = $mat[1];
 	}
-	echo $packagename . "\r\n";
-    function hashed($package) {
-	$hash = '{"7cc78271-e338-4edc-849c-b105c5d51ba5":["getAppDownloadInfo","' . $package . '"' . ',19]}';
-	return sha1($hash);
+	
+	$send = '{"id":1,"hash":"' . hashed($packagename) . '","packed":"xzrBQdWmJqg\/BQN+4Ll+XCuNIhYwIpWmFRH+I1wjEKfb2NwtXaU4OO6LmDY+dcNKPh6v1a2GdLYcCdZ6NliD0nbYjcglOT7OYB9fefCL5Ec=","iv":"UFDpSQCua3LwOKb8QWW4dS2PNSfMQ3ua1eWAuJY1G8xcaTS+Md+gbGMCSG3C5QJLmoiSFyOv\/QRFv6hWYsrA31ji0fGhWNGiqY9sWltqBst7YKoCqPLG0fCjoPKWPhvVhxKhjO8yT3RPalmDuPKpqGwW2fdHH+xPnuCDU51uUaE=","p2":"r7oshN8AYo64PZDDlJg8TmiEiXrrBjKlwPQITF94s\/3tKsyB1PJRJM5cD\/JZBEHK\/wWvGb\/jyj0GrOgbEMONHBoLCMR\/X6RWeC59LaItQaDk\/uY3+2cEisuBw3VCAkKL887SebW0xmB\/16rNl3LxLL5\/vgCZ4jaUvIb1dj0JEH4=","p1":"Kvn\/n9BLGkFAcpAWBQsAVbcF8SVnS6f3XGulLM\/J6a3SQOS5q8CagfCm2zbzQxHT0kRb9z90eCIBP9huKDth0Mu9JaAuNn9SiV7pBTs6C3hVlolY41W93hKPwhBfNyWCATymDnSjqcX\/KKNcKn3fvMU7zR0w9h\/WM\/sUkccX8pg=","enc_resp":false,"method":"getAppDownloadInfo","non_enc_params":"{\"device\":{\"mn\":260,\"abi\":\"x86\",\"sd\":19,\"bv\":\"7.12.2\",\"us\":{},\"cid\":0,\"lac\":0,\"ct\":\"\",\"id\":\"YGrrXv9TQkGyRwo6GaU0kw\",\"dd\":\"hlteatt\",\"co\":\"\",\"mc\":310,\"dm\":\"samsung\",\"do\":\"SAMSUNG-SM-N900A\",\"dpi\":160,\"abi2\":\"armeabi-v7a\",\"sz\":\"l\",\"dp\":\"hlteuc\",\"bc\":701202,\"pr\":\"\"},\"referer\":{\"name\":\"page_home|!EX!PaidRowTest|!VA!empty_key|referrer_slug=home|row-2-Best New Updates|3|test_group=A|not_initiated\"}}","params":[]}';
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, 'http://ad.cafebazaar.ir/json/getAppDownloadInfo');
+	curl_setopt($ch, CURLOPT_USERAGENT,'Dalvik/1.6.0 (Linux; U; Android 4.4.2; SAMSUNG-SM-N900A Build/KOT49H)');
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    'Content-Type: application/json',
+    'Connection: Keep-Alive',
+	'Expect:'
+	));
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $send);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	$answer = curl_exec($ch);
+	if (curl_error($ch)) {
+  	 echo curl_error($ch);
+	}
+	echo "Generated Link : ";
+    $json = json_decode($answer);
+	$name = $json->result->t;
+	$addresses = $json->result->cp;
+	echo $addresses[0] . 'apks/' . $name . '.apk?rand=' . current_millis();
+	
+	function hashed($package) {
+		$hash = '{"7cc78271-e338-4edc-849c-b105c5d51ba5":["getAppDownloadInfo","' . $package . '"' . ',19]}';
+		return sha1($hash);
 	}
 
 	function do_post_request($url, $data, $optional_headers = null)
@@ -46,29 +69,9 @@
 		}
 		return $response;
 	}
+	
 	function current_millis() {
-    list($usec, $sec) = explode(" ", microtime());
-    return round(((float)$usec + (float)$sec) * 1000);
+	    list($usec, $sec) = explode(" ", microtime());
+	   return round(((float)$usec + (float)$sec) * 1000);
 	}
-	$send = '{"id":1,"hash":"' . hashed($packagename) . '","packed":"S\/NNuBO0LXIyFIIo2UZ2gMhvQHttPoXiqAp3Z43Fz\/rUOSgphpIT+7Gx1fNYhqSm4zFG5Bx+jU1yW8\/FVZAnJAAYFf4bJuaABojX7OPQNqigm0wzRuq7b1TJuwpY0jam","iv":"mosLEvk1Ti0pNGEw0mW0tfRTuEuCoUBy\/prQyL4Xy5gujrp69k4OKHf6GxE9LLxcZjBKQuwswoxzGnMXpxwqNamE49LsP30Sd7i+ZPCT8N8uDiQos8h1kfUB02KDoPpQGsXktpEugQjxHFxoHve+25uAuU4WANND7KI\/LN3gI9A=","p2":"Cpo0+8o2CyXOlTd41Z\/3IaDOHy5ByDbmMBMRtHEVJfDvJCTgXpJFNlr7GTOZ5JMqI5jFm8xGtL9noYTiiIk5NUCDl27w3U3wXOCucTzulmLM+68Iigu4f9B2371liFsnLZr+i0IjnffAI63sQXLxh2njpfcCuKuUQneX\/LeSsqs=","p1":"aZaq4qYY32qIvnqI7svHcznKx1Pq0VuYQIpg9dCmI+2KHDRTu6hUlc7tfICcy0vn9YpSIl6vtsM1687c7As\/lSWoxYXVjQYgx2XvJko\/+vbboXZAhEnsUPaME3IQ97jGTLBsWY4ds4ZrR0iNR2uVyT+rGXiqGxaKxHgmyFwZd3E=","method":"getAppDownloadInfo","non_enc_params":"{\"device\":{\"mn\":16,\"abi\":\"x86\",\"sd\":19,\"bv\":\"7.5.1\",\"us\":{},\"ct\":\"\",\"id\":\"6cAUX_eAThCrjoUbSxgISg\",\"dd\":\"android\",\"co\":\"\",\"mc\":310,\"dm\":\"bignox\",\"do\":\"Nexus\",\"dpi\":240,\"abi2\":\"armeabi-v7a\",\"sz\":\"l\",\"dp\":\"nox\",\"pr\":\"\"},\"referer\":{\"name\":\"page_home|!EX!None_experiment|!VA!None_variation|row-0-Best New Apps and Games|0|not_initiated\"}}","params":[]}';
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, 'http://ad.cafebazaar.ir/json/getAppDownloadInfo');
-	curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:48.0) Gecko/20100101 Firefox/48.0');
-	curl_setopt($ch, CURLOPT_POST, true);
-	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
-    'Connection: Keep-Alive',
-	'Expect:'
-	));
-	curl_setopt($ch, CURLOPT_POSTFIELDS, $send);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	$answer = curl_exec($ch);
-	if (curl_error($ch)) {
-    echo curl_error($ch);
-	}
-	echo $answer . "\r\n";
-    $json = json_decode($answer);
-	$name = $json->result->t;
-	$addresses = $json->result->cp;
-	echo $addresses[0] . 'apks/' . $name . '.apk?rand=' . current_millis();
 ?>
